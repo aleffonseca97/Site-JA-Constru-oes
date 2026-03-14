@@ -1,0 +1,80 @@
+// Prisma schema - J.A Construções E-commerce
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  senhaHash  String
+  nome       String?
+  role       String   @default("admin")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Categoria {
+  id        String      @id @default(cuid())
+  nome      String
+  slug      String      @unique
+  parentId  String?
+  parent    Categoria?  @relation("Subcategorias", fields: [parentId], references: [id], onDelete: SetNull)
+  filhos    Categoria[] @relation("Subcategorias")
+  produtos  Produto[]
+
+  @@index([parentId])
+}
+
+model Produto {
+  id          String     @id @default(cuid())
+  nome        String
+  slug        String     @unique
+  descricao   String?
+  preco       Float
+  estoque     Int        @default(0)
+  imagens     String     @default("[]") // JSON array de URLs
+  ativo       Boolean    @default(true)
+  categoriaId String
+  categoria   Categoria  @relation(fields: [categoriaId], references: [id], onDelete: Restrict)
+  itensPedido ItemPedido[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([categoriaId])
+  @@index([slug])
+  @@index([ativo])
+}
+
+model Pedido {
+  id                String      @id @default(cuid())
+  clienteNome       String
+  clienteEmail      String
+  clienteTelefone   String?
+  endereco          String      // JSON: { rua, numero, bairro, cidade, cep, complemento? }
+  total             Float
+  status            String      @default("pendente") // pendente | pago | entregue | cancelado
+  stripeSessionId   String?     @unique
+  itens             ItemPedido[]
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model ItemPedido {
+  id            String   @id @default(cuid())
+  pedidoId      String
+  pedido        Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  produtoId     String
+  produto       Produto  @relation(fields: [produtoId], references: [id], onDelete: Restrict)
+  quantidade    Int
+  precoUnitario Float
+
+  @@index([pedidoId])
+}
