@@ -40,9 +40,9 @@ export default function ProdutoDetail({ produto }: { produto: Produto }) {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="ui-container py-8">
       <div className="mb-4">
-        <Link href="/produtos" className="text-yellow-600 hover:text-yellow-500 text-sm font-medium">
+        <Link href="/produtos" className="ui-link text-sm">
           ← Voltar aos produtos
         </Link>
       </div>
@@ -67,7 +67,7 @@ export default function ProdutoDetail({ produto }: { produto: Produto }) {
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
             {produto.nome}
           </h1>
-          <p className="text-yellow-600 text-2xl font-bold mb-4">
+          <p className="text-yellow-700 text-2xl font-bold mb-4">
             R$ {produto.preco.toFixed(2).replace(".", ",")}
           </p>
           {produto.descricao && (
@@ -93,7 +93,7 @@ export default function ProdutoDetail({ produto }: { produto: Produto }) {
                   onChange={(e) =>
                     setQuantidade(parseInt(e.target.value, 10) || 1)
                   }
-                  className="w-20 px-3 py-2 rounded-lg bg-white border border-gray-300 text-gray-900 focus:border-yellow-500 outline-none"
+                  className="ui-input w-20 px-3 py-2"
                 />
                 <span className="text-gray-500 text-sm">
                   ({produto.estoque} em estoque)
@@ -102,7 +102,7 @@ export default function ProdutoDetail({ produto }: { produto: Produto }) {
               <button
                 type="button"
                 onClick={handleAdd}
-                className="w-full md:w-auto px-6 py-3 rounded-lg font-medium bg-yellow-500 text-gray-900 hover:bg-yellow-400 transition"
+                className="ui-btn ui-btn-primary w-full md:w-auto px-6 py-3"
               >
                 {added ? "Adicionado ao carrinho!" : "Adicionar ao carrinho"}
               </button>

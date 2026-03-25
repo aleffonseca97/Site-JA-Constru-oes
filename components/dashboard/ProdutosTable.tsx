@@ -18,13 +18,14 @@ type Produto = {
 
 export default function ProdutosTable({
   produtos,
-  categorias,
+  categorias: _categorias,
 }: {
   produtos: Produto[];
   categorias: Categoria[];
 }) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
+  void _categorias;
 
   async function handleDelete(id: string) {
     if (confirmId !== id) {

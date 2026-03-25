@@ -23,9 +23,9 @@ export default async function HomePage() {
 
   return (
     <div>
-      <section className="bg-gray-100 border-b border-gray-200 py-16 md:py-24 px-4">
-        <div className="max-w-6xl mx-auto text-center">
-          <h1 className="flex items-center justify-center gap-3 text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+      <section className="bg-gradient-to-b from-gray-50 to-white border-b border-gray-200 py-16 md:py-24">
+        <div className="ui-container text-center">
+          <h1 className="flex items-center justify-center gap-3 text-4xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
             <Image
               src="/logo-ja.png"
               alt="J.A"
@@ -36,29 +36,29 @@ export default async function HomePage() {
             />
             <span className="logo-construcoes text-4xl md:text-5xl">Construções</span>
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
+          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto mb-8">
             Materiais de construção com qualidade e preço justo. Tudo para sua obra.
           </p>
           <Link
             href="/produtos"
-            className="inline-block px-6 py-3 rounded-lg font-medium bg-yellow-500 text-gray-900 hover:bg-yellow-400 shadow-md hover:shadow transition"
+            className="ui-btn ui-btn-primary px-6 py-3"
           >
             Ver produtos
           </Link>
         </div>
       </section>
 
-      <section className="py-12 px-4 bg-white">
-        <div className="max-w-6xl mx-auto">
+      <section className="py-12 bg-white">
+        <div className="ui-container">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">
-            <span className="text-yellow-500">Categorias</span>
+            <span className="text-yellow-600">Categorias</span>
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
             {categorias.map((c) => (
               <Link
                 key={c.id}
                 href={`/produtos?categoria=${c.slug}`}
-                className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center hover:border-yellow-500 hover:bg-yellow-50 transition"
+                className="ui-card ui-card-hover p-4 text-center cursor-pointer bg-gray-50"
               >
                 <span className="text-gray-800 font-medium">{c.nome}</span>
               </Link>
@@ -67,15 +67,15 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="py-12 px-4 bg-gray-50 border-t border-gray-200">
-        <div className="max-w-6xl mx-auto">
+      <section className="py-12 bg-gray-50 border-t border-gray-200">
+        <div className="ui-container">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900">
-              <span className="text-yellow-500">Destaques</span>
+              <span className="text-yellow-600">Destaques</span>
             </h2>
             <Link
               href="/produtos"
-              className="text-yellow-600 hover:text-yellow-500 text-sm font-medium"
+              className="ui-link text-sm"
             >
               Ver todos
             </Link>

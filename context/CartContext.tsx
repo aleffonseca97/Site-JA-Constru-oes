@@ -4,9 +4,8 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
-  useState,
+  useSyncExternalStore,
 } from "react";
 
 export type CartItem = {
@@ -48,26 +47,57 @@ function saveCart(items: CartItem[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
 }
 
+let inMemoryCart: CartItem[] = [];
+let hasInitialized = false;
+const listeners = new Set<() => void>();
+
+function ensureInitialized() {
+  if (hasInitialized) return;
+  if (typeof window === "undefined") return;
+  inMemoryCart = loadCart();
+  hasInitialized = true;
+}
+
+function emitChange() {
+  for (const l of listeners) l();
+}
+
+function setCart(next: CartItem[]) {
+  inMemoryCart = next;
+  saveCart(next);
+  emitChange();
+}
+
+function updateCart(updater: (prev: CartItem[]) => CartItem[]) {
+  ensureInitialized();
+  setCart(updater(inMemoryCart));
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+function getSnapshot() {
+  ensureInitialized();
+  return inMemoryCart;
+}
+
+const SERVER_SNAPSHOT: CartItem[] = [];
+function getServerSnapshot() {
+  return SERVER_SNAPSHOT;
+}
+
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setItems(loadCart());
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (mounted) saveCart(items);
-  }, [items, mounted]);
+  const items = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   const addItem = useCallback(
     (item: Omit<CartItem, "quantidade">, quantidade = 1) => {
-      setItems((prev) => {
+      updateCart((prev) => {
         const i = prev.findIndex((x) => x.produtoId === item.produtoId);
         if (i >= 0) {
           const next = [...prev];
-          next[i].quantidade += quantidade;
+          next[i] = { ...next[i], quantidade: next[i].quantidade + quantidade };
           return next;
         }
         return [...prev, { ...item, quantidade }];
@@ -77,15 +107,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   );
 
   const removeItem = useCallback((produtoId: string) => {
-    setItems((prev) => prev.filter((x) => x.produtoId !== produtoId));
+    updateCart((prev) => prev.filter((x) => x.produtoId !== produtoId));
   }, []);
 
   const updateQuantity = useCallback((produtoId: string, quantidade: number) => {
     if (quantidade <= 0) {
-      setItems((prev) => prev.filter((x) => x.produtoId !== produtoId));
+      updateCart((prev) => prev.filter((x) => x.produtoId !== produtoId));
       return;
     }
-    setItems((prev) =>
+    updateCart((prev) =>
       prev.map((x) =>
         x.produtoId === produtoId ? { ...x, quantidade } : x
       )
@@ -98,7 +128,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   );
   const count = useMemo(() => items.reduce((s, i) => s + i.quantidade, 0), [items]);
 
-  const clear = useCallback(() => setItems([]), []);
+  const clear = useCallback(() => setCart([]), []);
 
   const value = useMemo(
     () => ({

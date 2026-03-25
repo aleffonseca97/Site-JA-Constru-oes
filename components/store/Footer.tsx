@@ -1,10 +1,9 @@
-import Link from "next/link";
 import Image from "next/image";
 
 export default function Footer() {
   return (
     <footer className="bg-gray-100 border-t border-gray-200 mt-auto">
-      <div className="max-w-6xl mx-auto px-4 py-10">
+      <div className="ui-container py-10">
         {/* Topo: logo e identidade */}
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-8 pb-8 border-b border-gray-200">
           <div className="flex items-center gap-2">
@@ -22,7 +21,6 @@ export default function Footer() {
               <p className="text-sm text-gray-600">Desde 1994 em Paulicéia</p>
             </div>
           </div>
-         
         </div>
 
         {/* Conteúdo em colunas */}
@@ -80,11 +78,24 @@ export default function Footer() {
               <p>Av. Paulista, 1139</p>
               <p>Paulicéia, SP</p>
               <p className="mt-2">
-                <span className="inline-block mr-1">📞</span>
                 <a
                   href="tel:+5518997277876"
-                  className="text-yellow-600 hover:text-yellow-500 font-medium"
+                  className="inline-flex items-center gap-2 ui-link"
                 >
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    className="h-4 w-4"
+                  >
+                    <path
+                      d="M7 3h2l2 5-2 1c1 3 3 5 6 6l1-2 5 2v2c0 1-1 2-2 2-9 0-16-7-16-16 0-1 1-2 2-2Z"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
                   (18) 99727-7876
                 </a>
               </p>

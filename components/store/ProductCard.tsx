@@ -31,15 +31,19 @@ export default function ProductCard({ produto }: { produto: Produto }) {
   }
 
   return (
-    <article className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md hover:border-yellow-400 transition flex flex-col">
-      <Link href={`/produtos/${produto.slug}`} className="block flex-1">
+    <article className="ui-card ui-card-hover overflow-hidden flex flex-col">
+      <Link
+        href={`/produtos/${produto.slug}`}
+        className="group block flex-1 focus-visible:outline-none"
+        aria-label={`Ver detalhes de ${produto.nome}`}
+      >
         <div className="aspect-square relative bg-gray-100">
           {imagem ? (
             <Image
               src={imagem}
               alt={produto.nome}
               fill
-              className="object-cover"
+              className="object-cover transition duration-300 group-hover:scale-[1.02]"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             />
           ) : (
@@ -50,7 +54,7 @@ export default function ProductCard({ produto }: { produto: Produto }) {
         </div>
         <div className="p-4">
           <h3 className="font-medium text-gray-900 line-clamp-2">{produto.nome}</h3>
-          <p className="text-yellow-600 font-bold mt-1">
+          <p className="text-yellow-700 font-bold mt-1">
             R$ {produto.preco.toFixed(2).replace(".", ",")}
           </p>
         </div>
@@ -60,7 +64,7 @@ export default function ProductCard({ produto }: { produto: Produto }) {
           type="button"
           onClick={handleAdd}
           disabled={produto.estoque < 1}
-          className="w-full py-2 rounded-lg bg-yellow-500 text-gray-900 font-medium hover:bg-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          className="ui-btn ui-btn-primary w-full py-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {produto.estoque < 1 ? "Indisponível" : "Adicionar ao carrinho"}
         </button>

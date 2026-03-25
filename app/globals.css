@@ -7,6 +7,7 @@
   --foreground-muted: #6b7280;
   --accent: #eab308;
   --accent-hover: #ca9a04;
+  --ring: #f59e0b;
 }
 
 @theme inline {
@@ -20,6 +21,72 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+@layer base {
+  :focus-visible {
+    outline: 3px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--accent) 35%, white);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .ui-container {
+    @apply max-w-6xl mx-auto px-4;
+  }
+
+  .ui-card {
+    @apply bg-white border border-gray-200 rounded-xl shadow-sm;
+  }
+
+  .ui-card-hover {
+    @apply transition duration-200 hover:shadow-md hover:border-yellow-400;
+  }
+
+  .ui-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg font-medium transition duration-200 cursor-pointer;
+  }
+
+  .ui-btn-primary {
+    @apply bg-yellow-500 text-gray-900 hover:bg-yellow-400 shadow-sm hover:shadow;
+  }
+
+  .ui-btn-ghost {
+    @apply text-gray-700 hover:text-yellow-700 hover:bg-yellow-50;
+  }
+
+  .ui-input {
+    @apply w-full px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-900 outline-none transition duration-200;
+    @apply focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500;
+  }
+
+  .ui-select {
+    @apply rounded-lg bg-white border border-gray-300 text-gray-900 px-3 py-1.5 text-sm outline-none transition duration-200;
+    @apply focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500;
+  }
+
+  .ui-link {
+    @apply text-yellow-700 hover:text-yellow-600 font-medium transition duration-200;
+  }
+
+  .ui-muted {
+    @apply text-gray-600;
+  }
 }
 
 /* Palavra "Construções" da marca: Arial, amarelo, contorno preto */

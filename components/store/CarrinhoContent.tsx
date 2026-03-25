@@ -10,10 +10,10 @@ export default function CarrinhoContent() {
   if (count === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-600 mb-4">Seu carrinho está vazio.</p>
+        <p className="ui-muted mb-4">Seu carrinho está vazio.</p>
         <Link
           href="/produtos"
-          className="inline-block px-6 py-3 rounded-lg bg-yellow-500 text-gray-900 font-medium hover:bg-yellow-400 transition"
+          className="ui-btn ui-btn-primary px-6 py-3"
         >
           Ver produtos
         </Link>
@@ -28,7 +28,7 @@ export default function CarrinhoContent() {
           {items.map((item) => (
             <li
               key={item.produtoId}
-              className="flex gap-4 bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
+              className="flex gap-4 ui-card p-4"
             >
               <div className="relative w-20 h-20 rounded overflow-hidden bg-gray-100 shrink-0">
                 {item.imagem ? (
@@ -48,11 +48,11 @@ export default function CarrinhoContent() {
               <div className="flex-1 min-w-0">
                 <Link
                   href={`/produtos/${item.slug}`}
-                  className="font-medium text-gray-900 hover:text-yellow-600 line-clamp-2"
+                  className="font-medium text-gray-900 hover:text-yellow-700 transition duration-200 line-clamp-2 rounded-sm"
                 >
                   {item.nome}
                 </Link>
-                <p className="text-yellow-600 text-sm mt-0.5 font-medium">
+                <p className="text-yellow-700 text-sm mt-0.5 font-medium">
                   R$ {item.preco.toFixed(2).replace(".", ",")} cada
                 </p>
               </div>
@@ -67,12 +67,12 @@ export default function CarrinhoContent() {
                       parseInt(e.target.value, 10) || 1
                     )
                   }
-                  className="w-14 px-2 py-1 rounded-lg bg-white border border-gray-300 text-gray-900 text-center text-sm focus:border-yellow-500 outline-none"
+                  className="ui-input w-14 px-2 py-1 text-center text-sm"
                 />
                 <button
                   type="button"
                   onClick={() => removeItem(item.produtoId)}
-                  className="text-red-600 hover:text-red-500 text-sm font-medium"
+                  className="text-red-700 hover:text-red-600 text-sm font-medium transition duration-200 cursor-pointer rounded-md px-1.5 py-1"
                   aria-label="Remover do carrinho"
                 >
                   Remover
@@ -83,20 +83,20 @@ export default function CarrinhoContent() {
         </ul>
       </div>
       <div>
-        <div className="bg-white border border-gray-200 rounded-lg p-6 sticky top-24 shadow-sm">
-          <p className="text-gray-600 mb-2 font-medium">Total</p>
-          <p className="text-2xl font-bold text-yellow-600 mb-6">
+        <div className="ui-card p-6 sticky top-24">
+          <p className="ui-muted mb-2 font-medium">Total</p>
+          <p className="text-2xl font-bold text-yellow-700 mb-6">
             R$ {total.toFixed(2).replace(".", ",")}
           </p>
           <Link
             href="/checkout"
-            className="block w-full py-3 rounded-lg font-medium bg-yellow-500 text-gray-900 hover:bg-yellow-400 text-center transition"
+            className="ui-btn ui-btn-primary w-full py-3 text-center"
           >
             Finalizar compra
           </Link>
           <Link
             href="/produtos"
-            className="block text-center text-gray-600 hover:text-yellow-600 text-sm mt-4 font-medium"
+            className="block text-center ui-muted hover:text-yellow-700 transition duration-200 text-sm mt-4 font-medium rounded-md py-2"
           >
             Continuar comprando
           </Link>

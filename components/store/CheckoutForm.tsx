@@ -1,12 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 
 export default function CheckoutForm() {
-  const router = useRouter();
   const { items, total, clear } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -23,10 +21,10 @@ export default function CheckoutForm() {
   if (items.length === 0 && !loading) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-600 mb-4">Seu carrinho está vazio.</p>
+        <p className="ui-muted mb-4">Seu carrinho está vazio.</p>
         <Link
           href="/produtos"
-          className="text-yellow-600 hover:text-yellow-500 font-medium"
+          className="ui-link"
         >
           Ir para produtos
         </Link>
@@ -77,12 +75,14 @@ export default function CheckoutForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="text-red-400 text-sm bg-red-900/30 border border-red-500/50 rounded px-3 py-2">
+        <div className="text-red-700 text-sm bg-red-50 border border-red-200 rounded-lg px-3 py-2">
           {error}
         </div>
       )}
       <div>
-        <h2 className="text-lg font-medium text-gray-900 mb-3"><span className="text-yellow-500">Dados pessoais</span></h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-3">
+          <span className="text-yellow-600">Dados pessoais</span>
+        </h2>
         <div className="space-y-3">
           <div>
             <label htmlFor="nome" className="block text-sm text-gray-600 mb-1 font-medium">Nome *</label>
@@ -92,7 +92,7 @@ export default function CheckoutForm() {
               value={nome}
               onChange={(e) => setNome(e.target.value)}
               required
-              className="w-full px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-900 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none"
+              className="ui-input"
             />
           </div>
           <div>
@@ -103,7 +103,7 @@ export default function CheckoutForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-900 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none"
+              className="ui-input"
             />
           </div>
           <div>
@@ -113,13 +113,15 @@ export default function CheckoutForm() {
               type="tel"
               value={telefone}
               onChange={(e) => setTelefone(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-900 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none"
+              className="ui-input"
             />
           </div>
         </div>
       </div>
       <div>
-        <h2 className="text-lg font-medium text-gray-900 mb-3"><span className="text-yellow-500">Endereço de entrega</span></h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-3">
+          <span className="text-yellow-600">Endereço de entrega</span>
+        </h2>
         <div className="space-y-3">
           <div>
             <label htmlFor="rua" className="block text-sm text-gray-600 mb-1 font-medium">Rua *</label>
@@ -129,7 +131,7 @@ export default function CheckoutForm() {
               value={rua}
               onChange={(e) => setRua(e.target.value)}
               required
-              className="w-full px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-900 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none"
+              className="ui-input"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -141,7 +143,7 @@ export default function CheckoutForm() {
                 value={numero}
                 onChange={(e) => setNumero(e.target.value)}
                 required
-                className="w-full px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-900 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none"
+                className="ui-input"
               />
             </div>
             <div>
@@ -151,7 +153,7 @@ export default function CheckoutForm() {
                 type="text"
                 value={complemento}
                 onChange={(e) => setComplemento(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-900 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none"
+                className="ui-input"
               />
             </div>
           </div>
@@ -163,7 +165,7 @@ export default function CheckoutForm() {
               value={bairro}
               onChange={(e) => setBairro(e.target.value)}
               required
-              className="w-full px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-900 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none"
+              className="ui-input"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -175,7 +177,7 @@ export default function CheckoutForm() {
                 value={cidade}
                 onChange={(e) => setCidade(e.target.value)}
                 required
-                className="w-full px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-900 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none"
+                className="ui-input"
               />
             </div>
             <div>
@@ -187,18 +189,20 @@ export default function CheckoutForm() {
                 onChange={(e) => setCep(e.target.value)}
                 required
                 placeholder="00000-000"
-                className="w-full px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-900 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none"
+                className="ui-input"
               />
             </div>
           </div>
         </div>
       </div>
       <div className="pt-4 border-t border-gray-200">
-        <p className="text-gray-600 mb-2 font-medium">Total: <span className="text-yellow-600 font-bold">R$ {total.toFixed(2).replace(".", ",")}</span></p>
+        <p className="ui-muted mb-2 font-medium">
+          Total: <span className="text-yellow-700 font-bold">R$ {total.toFixed(2).replace(".", ",")}</span>
+        </p>
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 rounded-lg font-medium bg-yellow-500 text-gray-900 hover:bg-yellow-400 disabled:opacity-50 transition"
+          className="ui-btn ui-btn-primary w-full py-3 disabled:opacity-50"
         >
           {loading ? "Redirecionando..." : "Ir para pagamento"}
         </button>

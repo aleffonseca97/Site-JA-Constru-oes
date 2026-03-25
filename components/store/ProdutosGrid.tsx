@@ -21,7 +21,7 @@ export default function ProdutosGrid({
   categoriaSlug,
   subcategorias = [],
   subcategoriaSlug = null,
-  busca,
+  busca: _busca,
   ordem,
   dir,
 }: {
@@ -36,6 +36,7 @@ export default function ProdutosGrid({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  void _busca;
 
   function setFilter(key: string, value: string | null) {
     const p = new URLSearchParams(searchParams.toString());
@@ -57,7 +58,7 @@ export default function ProdutosGrid({
               setFilter("categoria", e.target.value || null);
               setFilter("sub", null);
             }}
-            className="rounded-lg bg-white border border-gray-300 text-gray-900 px-3 py-1.5 text-sm focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none"
+            className="ui-select"
           >
             <option value="">Todas</option>
             {categorias.map((c) => (
@@ -78,7 +79,7 @@ export default function ProdutosGrid({
               p.set("dir", d);
               router.push(`/produtos?${p.toString()}`);
             }}
-            className="rounded-lg bg-white border border-gray-300 text-gray-900 px-3 py-1.5 text-sm focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none"
+            className="ui-select"
           >
             <option value="nome-asc">Nome A–Z</option>
             <option value="nome-desc">Nome Z–A</option>
@@ -97,7 +98,7 @@ export default function ProdutosGrid({
             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
               !subcategoriaSlug
                 ? "bg-yellow-500 text-gray-900"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300 cursor-pointer"
             }`}
           >
             Todos
@@ -110,7 +111,7 @@ export default function ProdutosGrid({
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
                 subcategoriaSlug === sub.slug
                   ? "bg-yellow-500 text-gray-900"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300 cursor-pointer"
               }`}
             >
               {sub.nome}

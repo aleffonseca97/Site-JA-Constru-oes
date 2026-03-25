@@ -1,8 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
 import Link from "next/link";
-import { signOut } from "next-auth/react";
 import AdminNav from "@/components/dashboard/AdminNav";
 
 export default async function AdminLayout({
@@ -11,7 +9,6 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const session = await getServerSession(authOptions);
-  const isLoginPage = false; // layout is used for all /admin; login is unprotected
 
   return (
     <div className="min-h-screen bg-black text-gray-100">
