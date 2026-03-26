@@ -7,11 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:seed": "npx tsx prisma/seed.ts",
-    "db:studio": "prisma studio"
+    "db:migrate": "node ./node_modules/prisma/build/index.js migrate dev",
+    "db:migrate:deploy": "node ./node_modules/prisma/build/index.js migrate deploy",
+    "db:generate": "node ./node_modules/prisma/build/index.js generate",
+    "db:seed": "node ./node_modules/tsx/dist/cli.mjs prisma/seed.ts",
+    "db:studio": "node ./node_modules/prisma/build/index.js studio"
   },
   "prisma": {
-    "seed": "npx tsx prisma/seed.ts"
+    "seed": "node ./node_modules/tsx/dist/cli.mjs prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.9.0",

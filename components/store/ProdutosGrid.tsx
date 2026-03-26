@@ -21,7 +21,7 @@ export default function ProdutosGrid({
   categoriaSlug,
   subcategorias = [],
   subcategoriaSlug = null,
-  busca: _busca,
+  busca,
   ordem,
   dir,
 }: {
@@ -36,8 +36,6 @@ export default function ProdutosGrid({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  void _busca;
-
   function setFilter(key: string, value: string | null) {
     const p = new URLSearchParams(searchParams.toString());
     if (value) p.set(key, value);
@@ -48,86 +46,115 @@ export default function ProdutosGrid({
   const mostraSubcategorias = categoriaSlug && subcategorias.length > 0;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex flex-wrap gap-2 items-center">
-          <span className="text-gray-600 text-sm font-medium">Categoria:</span>
-          <select
-            value={categoriaSlug ?? ""}
-            onChange={(e) => {
-              setFilter("categoria", e.target.value || null);
-              setFilter("sub", null);
-            }}
-            className="ui-select"
-          >
-            <option value="">Todas</option>
-            {categorias.map((c) => (
-              <option key={c.id} value={c.slug}>
-                {c.nome}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex gap-2 items-center">
-          <span className="text-gray-600 text-sm font-medium">Ordenar:</span>
-          <select
-            value={`${ordem}-${dir}`}
-            onChange={(e) => {
-              const [o, d] = (e.target.value as string).split("-");
-              const p = new URLSearchParams(searchParams.toString());
-              p.set("ordem", o);
-              p.set("dir", d);
-              router.push(`/produtos?${p.toString()}`);
-            }}
-            className="ui-select"
-          >
-            <option value="nome-asc">Nome A–Z</option>
-            <option value="nome-desc">Nome Z–A</option>
-            <option value="preco-asc">Preço menor</option>
-            <option value="preco-desc">Preço maior</option>
-          </select>
+    <div className="space-y-6 sm:space-y-8">
+      {busca ? (
+        <p className="text-sm text-gray-600">
+          Resultados para{" "}
+          <span className="font-medium text-gray-900">&ldquo;{busca}&rdquo;</span>
+        </p>
+      ) : null}
+
+      <div className="rounded-2xl border border-gray-200/90 bg-white/90 p-4 shadow-sm backdrop-blur-sm sm:p-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:gap-x-6 sm:gap-y-4">
+          <label className="flex min-w-0 flex-1 flex-col gap-1.5 sm:min-w-[12rem] sm:max-w-sm">
+            <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              Categoria
+            </span>
+            <select
+              value={categoriaSlug ?? ""}
+              onChange={(e) => {
+                setFilter("categoria", e.target.value || null);
+                setFilter("sub", null);
+              }}
+              className="ui-select w-full min-h-11 min-w-0 py-2.5 text-base sm:min-h-0 sm:py-1.5 sm:text-sm"
+            >
+              <option value="">Todas</option>
+              {categorias.map((c) => (
+                <option key={c.id} value={c.slug}>
+                  {c.nome}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="flex min-w-0 flex-1 flex-col gap-1.5 sm:min-w-[11rem] sm:max-w-xs">
+            <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              Ordenar
+            </span>
+            <select
+              value={`${ordem}-${dir}`}
+              onChange={(e) => {
+                const [o, d] = (e.target.value as string).split("-");
+                const p = new URLSearchParams(searchParams.toString());
+                p.set("ordem", o);
+                p.set("dir", d);
+                router.push(`/produtos?${p.toString()}`);
+              }}
+              className="ui-select w-full min-h-11 min-w-0 py-2.5 text-base sm:min-h-0 sm:py-1.5 sm:text-sm"
+            >
+              <option value="nome-asc">Nome A–Z</option>
+              <option value="nome-desc">Nome Z–A</option>
+              <option value="preco-asc">Preço menor</option>
+              <option value="preco-desc">Preço maior</option>
+            </select>
+          </label>
         </div>
       </div>
 
       {mostraSubcategorias && (
-        <div className="flex flex-wrap gap-2 items-center border-b border-gray-200 pb-4">
-          <span className="text-gray-600 text-sm mr-1 font-medium">Subcategorias:</span>
-          <button
-            type="button"
-            onClick={() => setFilter("sub", null)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
-              !subcategoriaSlug
-                ? "bg-yellow-500 text-gray-900"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300 cursor-pointer"
-            }`}
+        <div className="border-b border-gray-200/90 pb-4 sm:pb-5">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 sm:mb-3">
+            Subcategorias
+          </p>
+          <nav
+            className="-mx-4 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:thin] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0 sm:snap-none"
+            aria-label="Filtrar por subcategoria"
           >
-            Todos
-          </button>
-          {subcategorias.map((sub) => (
             <button
-              key={sub.id}
               type="button"
-              onClick={() => setFilter("sub", sub.slug)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
-                subcategoriaSlug === sub.slug
-                  ? "bg-yellow-500 text-gray-900"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300 cursor-pointer"
+              onClick={() => setFilter("sub", null)}
+              className={`shrink-0 snap-start rounded-xl px-4 py-2.5 text-sm font-medium transition sm:py-1.5 ${
+                !subcategoriaSlug
+                  ? "bg-yellow-500 text-gray-900 shadow-sm"
+                  : "cursor-pointer border border-gray-200 bg-gray-50 text-gray-800 hover:bg-gray-100"
               }`}
             >
-              {sub.nome}
+              Todos
             </button>
-          ))}
+            {subcategorias.map((sub) => (
+              <button
+                key={sub.id}
+                type="button"
+                onClick={() => setFilter("sub", sub.slug)}
+                className={`shrink-0 snap-start rounded-xl px-4 py-2.5 text-sm font-medium transition sm:py-1.5 ${
+                  subcategoriaSlug === sub.slug
+                    ? "bg-yellow-500 text-gray-900 shadow-sm"
+                    : "cursor-pointer border border-gray-200 bg-gray-50 text-gray-800 hover:bg-gray-100"
+                }`}
+              >
+                {sub.nome}
+              </button>
+            ))}
+          </nav>
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {produtos.map((p) => (
-          <ProductCard key={p.id} produto={p} />
+      <ul
+        className="grid grid-cols-2 gap-2 min-[360px]:grid-cols-3 min-[360px]:gap-2 sm:grid-cols-2 sm:gap-4 md:grid-cols-3 md:gap-5 lg:grid-cols-4 lg:gap-5 xl:gap-6"
+        aria-label="Lista de produtos"
+      >
+        {produtos.map((p, index) => (
+          <li
+            key={p.id}
+            className="category-card-reveal min-w-0"
+            style={{ animationDelay: `${Math.min(index * 42, 420)}ms` }}
+          >
+            <ProductCard produto={p} density="compact" />
+          </li>
         ))}
-      </div>
+      </ul>
       {produtos.length === 0 && (
-        <p className="text-gray-500 text-center py-12">
-          Nenhum produto encontrado.
+        <p className="rounded-xl border border-dashed border-gray-300 bg-white/60 px-4 py-14 text-center text-gray-600">
+          Nenhum produto encontrado com os filtros atuais.
         </p>
       )}
     </div>

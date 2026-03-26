@@ -20,13 +20,36 @@ export default function CheckoutForm() {
 
   if (items.length === 0 && !loading) {
     return (
-      <div className="text-center py-8">
-        <p className="ui-muted mb-4">Seu carrinho está vazio.</p>
+      <div className="flex flex-col items-center py-6 text-center sm:py-8">
+        <div
+          className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-stone-200 bg-stone-50 text-stone-500 shadow-inner sm:h-16 sm:w-16"
+          aria-hidden
+        >
+          <svg
+            className="h-7 w-7 sm:h-8 sm:w-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={1.5}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.541 3.947-7.171 3.947-7.171 0 0-.896-.034-1.842.28-.94.313-1.732.893-2.39 1.645M7.5 14.25l-1.02-5.513m0 0L5.25 5.25h13.5l-1.08 5.513M7.5 14.25l5.25-5.25m0 0l5.25 5.25"
+            />
+          </svg>
+        </div>
+        <p className="mb-1 text-lg font-semibold text-stone-900">
+          Carrinho vazio
+        </p>
+        <p className="mb-6 max-w-sm text-pretty text-sm text-stone-600 sm:text-base">
+          Adicione produtos antes de finalizar a compra.
+        </p>
         <Link
           href="/produtos"
-          className="ui-link"
+          className="ui-btn ui-btn-primary min-h-[3rem] w-full max-w-xs px-6 py-3 sm:w-auto"
         >
-          Ir para produtos
+          Ver produtos
         </Link>
       </div>
     );
@@ -80,8 +103,8 @@ export default function CheckoutForm() {
         </div>
       )}
       <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">
-          <span className="text-yellow-600">Dados pessoais</span>
+        <h2 className="checkout-heading-font text-xl font-semibold text-stone-900 mb-3 sm:text-[1.35rem]">
+          <span className="text-amber-700">Dados pessoais</span>
         </h2>
         <div className="space-y-3">
           <div>
@@ -119,8 +142,8 @@ export default function CheckoutForm() {
         </div>
       </div>
       <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">
-          <span className="text-yellow-600">Endereço de entrega</span>
+        <h2 className="checkout-heading-font text-xl font-semibold text-stone-900 mb-3 sm:text-[1.35rem]">
+          <span className="text-amber-700">Endereço de entrega</span>
         </h2>
         <div className="space-y-3">
           <div>
@@ -134,7 +157,7 @@ export default function CheckoutForm() {
               className="ui-input"
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label htmlFor="numero" className="block text-sm text-gray-600 mb-1 font-medium">Número *</label>
               <input
@@ -168,7 +191,7 @@ export default function CheckoutForm() {
               className="ui-input"
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label htmlFor="cidade" className="block text-sm text-gray-600 mb-1 font-medium">Cidade *</label>
               <input

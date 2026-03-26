@@ -103,3 +103,59 @@ body {
     1px 0 0 #000,
     -1px 0 0 #000;
 }
+
+@keyframes store-header-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.35rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Seção de categorias — entrada escalonada (respeita prefers-reduced-motion no @layer base) */
+@keyframes category-card-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(0.4rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.category-card-reveal {
+  animation: category-card-reveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Seção Destaques — mesma curva de entrada, nome semântico próprio */
+.highlight-card-reveal {
+  animation: category-card-reveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Checkout — tipografia de título (variável do layout) + entrada suave */
+.checkout-heading-font {
+  font-family: var(--font-checkout-display), ui-serif, Georgia, serif;
+}
+
+@keyframes checkout-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.checkout-fade-up {
+  animation: checkout-fade-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.checkout-fade-up-slow {
+  animation: checkout-fade-up 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
