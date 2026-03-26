@@ -7,5 +7,11 @@ export default withAuth({
 });
 
 export const config = {
-  matcher: ["/admin/produtos/:path*", "/admin/vendas/:path*", "/admin"],
+  matcher: [
+    "/admin/produtos/:path*",
+    "/admin/vendas/:path*",
+    "/admin/categorias/:path*",
+    "/admin/configuracoes",
+    "/admin",
+  ],
 };

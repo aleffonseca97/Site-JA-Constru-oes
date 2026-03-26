@@ -25,9 +25,11 @@ export default async function ProdutosPage({
   type SubCategoria = { id: string; nome: string; slug: string };
 
   // Categorias principais (sem pai) para o dropdown
-  const categorias = await prisma.$queryRaw<
-    { id: string; nome: string; slug: string }[]
-  >`SELECT id, nome, slug FROM Categoria WHERE parentId IS NULL ORDER BY nome ASC`;
+  const categorias = await prisma.categoria.findMany({
+    where: { parentId: null },
+    orderBy: { nome: "asc" },
+    select: { id: true, nome: true, slug: true },
+  });
 
   const categoria = categoriaSlug
     ? await prisma.categoria.findUnique({
@@ -36,9 +38,11 @@ export default async function ProdutosPage({
     : null;
 
   const subcategorias: SubCategoria[] = categoria
-    ? await prisma.$queryRaw<SubCategoria[]>`
-        SELECT id, nome, slug FROM Categoria WHERE parentId = ${categoria.id} ORDER BY nome ASC
-      `
+    ? await prisma.categoria.findMany({
+        where: { parentId: categoria.id },
+        orderBy: { nome: "asc" },
+        select: { id: true, nome: true, slug: true },
+      })
     : [];
 
   const where: {

@@ -26,6 +26,12 @@ export default function AdminNav({ session }: { session: Session | null }) {
       >
         Vendas
       </Link>
+      <Link
+        href="/admin/configuracoes"
+        className="text-gray-300 hover:text-yellow-400 transition"
+      >
+        Configurações
+      </Link>
       <span className="text-gray-500 text-sm">{session.user?.email}</span>
       <button
         type="button"
