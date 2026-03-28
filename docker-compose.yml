@@ -15,16 +15,16 @@ services:
       context: .
       dockerfile: Dockerfile
       extra_hosts:
-        - "host.docker.internal:host-gateway"
+        - 'host.docker.internal:host-gateway'
       args:
-        DATABASE_URL: ${DATABASE_URL:?Defina DATABASE_URL no .env (ou ambiente) antes do build}
+        DATABASE_URL: ${DATABASE_URL}
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - 'host.docker.internal:host-gateway'
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
-      DATABASE_URL: ${DATABASE_URL:?Defina DATABASE_URL no .env ou no ambiente}
+      DATABASE_URL: ${DATABASE_URL}
     env_file:
       - path: .env
         required: false
