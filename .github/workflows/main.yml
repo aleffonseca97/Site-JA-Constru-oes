@@ -46,5 +46,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            DATABASE_URL=${{ secrets.DATABASE_URL || 'postgresql://6V8VkZh5oOxgJLeJ:logosserveradmin193690@72.62.108.253:32771/jaconstrucoes?schema=public' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
