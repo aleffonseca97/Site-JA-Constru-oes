@@ -1,47 +1,21 @@
-# Primeira vez (o build do Next precisa de Postgres acessível — páginas RSC usam Prisma no build):
-#   1. docker compose up -d db
-#   2. docker compose build app
-#   3. docker compose up app
+# Usa o mesmo DATABASE_URL no build (Next/Prisma nas páginas) e em runtime.
+# Coloque DATABASE_URL no .env na raiz do projeto (o Compose usa esse ficheiro para ${DATABASE_URL}).
 #
-# Em Linux, extra_hosts no build permite host.docker.internal → host (Postgres na porta publicada).
+#   docker compose build app
+#   docker compose up app
 
 services:
-  db:
-    image: postgres:16-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ja
-      POSTGRES_PASSWORD: ja
-      POSTGRES_DB: jaconstrucoes
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ja -d jaconstrucoes"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
   app:
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        DATABASE_URL: postgresql://ja:ja@host.docker.internal:5432/jaconstrucoes?sslmode=disable
-      extra_hosts:
-        - "host.docker.internal:host-gateway"
+        DATABASE_URL: ${DATABASE_URL:?Defina DATABASE_URL no .env (ou export) antes de buildar}
     restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
-      DATABASE_URL: postgresql://ja:ja@db:5432/jaconstrucoes?sslmode=disable
+      DATABASE_URL: ${DATABASE_URL:?Defina DATABASE_URL no .env ou no ambiente}
     env_file:
       - path: .env
         required: false
-    depends_on:
-      db:
-        condition: service_healthy
-
-volumes:
-  pgdata:
