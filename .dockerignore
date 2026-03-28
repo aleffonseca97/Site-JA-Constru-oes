@@ -31,8 +31,8 @@ coverage
 .vercel
 public/uploads
 
-# Docker (evita invalidar cache)
-Dockerfile*
+# Compose / meta local (não entram na imagem). Não ignore Dockerfile*: no CI o contexto
+# enviado ao BuildKit precisa incluir o Dockerfile ou o build falha ("open dockerfile: no such file").
 docker-compose*.yml
 .dockerignore
 
