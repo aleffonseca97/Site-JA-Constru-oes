@@ -18,15 +18,6 @@ ENV NODE_ENV=production
 ARG DATABASE_URL
 RUN export DATABASE_URL="$DATABASE_URL" && npm run db:generate && npm run build
 =======
-#ARG DATABASE_URL
-#ENV DATABASE_URL=${DATABASE_URL}
-
-ENV NEXT_TELEMETRY_DISABLED=1
-ENV NODE_ENV=production
-
-#RUN npm run db:generate && npm run build
-RUN npm run build
->>>>>>> cb7162ebb633192575c00a103b7f028cb7df6cab
 
 # Prisma CLI isolado do node_modules do standalone (evita dependências hoistadas faltando).
 # Versão alinhada com package-lock.json (node_modules/prisma).
