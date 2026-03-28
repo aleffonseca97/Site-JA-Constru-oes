@@ -1,5 +1,10 @@
-# Usa o mesmo DATABASE_URL no build (Next/Prisma nas páginas) e em runtime.
-# Coloque DATABASE_URL no .env na raiz do projeto (o Compose usa esse ficheiro para ${DATABASE_URL}).
+# Build: DATABASE_URL passa por build.args; o Compose preenche com ${DATABASE_URL} (ficheiro .env
+# na pasta do projeto para substituição — não entra no contexto da imagem, .env está no .dockerignore).
+#
+# Runtime: DATABASE_URL via environment + env_file .env no serviço.
+#
+# Postgres no HOST: use host.docker.internal na URL, não localhost (ver extra_hosts).
+# Postgres noutro container/servidor: hostname/IP acessível a partir da rede da build.
 #
 #   docker compose build app
 #   docker compose up app
@@ -9,8 +14,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      extra_hosts:
+        - "host.docker.internal:host-gateway"
       args:
-        DATABASE_URL: ${DATABASE_URL:?Defina DATABASE_URL no .env (ou export) antes de buildar}
+        DATABASE_URL: ${DATABASE_URL:?Defina DATABASE_URL no .env (ou ambiente) antes do build}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: unless-stopped
     ports:
       - "3000:3000"
