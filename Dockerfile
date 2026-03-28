@@ -10,13 +10,14 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-ARG DATABASE_URL
-ENV DATABASE_URL=${DATABASE_URL}
+#ARG DATABASE_URL
+#ENV DATABASE_URL=${DATABASE_URL}
 
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-RUN npm run db:generate && npm run build
+#RUN npm run db:generate && npm run build
+RUN npm run build
 
 # Prisma CLI isolado do node_modules do standalone (evita dependências hoistadas faltando)
 FROM node:20-bookworm-slim AS migrate-tool
