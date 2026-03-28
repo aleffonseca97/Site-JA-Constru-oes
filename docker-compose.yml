@@ -28,3 +28,10 @@ services:
     env_file:
       - path: .env
         required: false
+    volumes:
+      # Persiste ficheiros em public/ (imagens estáticas e futuros uploads). Na primeira subida,
+      # o Docker preenche o volume a partir do conteúdo copiado na imagem.
+      - public_images:/app/public
+
+volumes:
+  public_images:

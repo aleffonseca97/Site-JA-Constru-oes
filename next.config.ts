@@ -12,10 +12,7 @@ try {
 const nextConfig: NextConfig = {
   output: "standalone",
   outputFileTracingIncludes: {
-    "/*": [
-      "./node_modules/.prisma/**",
-      "./node_modules/@prisma/client/**",
-    ],
+    "/*": ["./generated/prisma/**", "./node_modules/pg/**", "./node_modules/@prisma/adapter-pg/**"],
   },
   images: {
     remotePatterns: r2Hostname

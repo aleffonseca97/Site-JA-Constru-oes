@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM node:20-bookworm-slim AS deps
+FROM node:22-bookworm-slim AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -18,12 +18,12 @@ RUN export DATABASE_URL="$DATABASE_URL" && npm run db:generate && npm run build
 
 # CLI Prisma à parte: o output standalone do Next não inclui dependências hoistadas necessárias ao migrate.
 # Manter versão alinhada com package-lock.json (node_modules/prisma).
-FROM node:20-bookworm-slim AS migrate-tool
+FROM node:22-bookworm-slim AS migrate-tool
 WORKDIR /prismacli
 RUN printf '%s\n' '{"private":true}' > package.json \
-  && npm install prisma@6.19.2 --omit=dev --ignore-scripts --no-audit --no-fund
+  && npm install prisma@7 --omit=dev --ignore-scripts --no-audit --no-fund
 
-FROM node:20-bookworm-slim AS runner
+FROM node:22-bookworm-slim AS runner
 WORKDIR /app
 
 # HOSTNAME=0.0.0.0: Next standalone escuta em todas as interfaces (port mapping do Docker).
@@ -41,6 +41,7 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts ./prisma.config.ts
 COPY --from=migrate-tool --chown=nextjs:nodejs /prismacli/node_modules ./prismacli/node_modules
 
 USER nextjs
