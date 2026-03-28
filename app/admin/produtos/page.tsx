@@ -1,22 +1,24 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { produtoComUrlsDeImagens, produtoImagensQuery } from "@/lib/produto-imagens";
 import ProdutosTable from "@/components/dashboard/ProdutosTable";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  title: "Produtos — Admin",
+};
+
 export default async function AdminProdutosPage() {
   const produtos = await prisma.produto.findMany({
     orderBy: { nome: "asc" },
-    include: { categoria: { select: { id: true, nome: true, slug: true } } },
-  });
-  const categorias = await prisma.categoria.findMany({
-    orderBy: { nome: "asc" },
+    include: {
+      categoria: { select: { id: true, nome: true, slug: true } },
+      ...produtoImagensQuery,
+    },
   });
 
-  const produtosComImagens = produtos.map((p) => ({
-    ...p,
-    imagens: JSON.parse(p.imagens || "[]") as string[],
-  }));
+  const produtosComImagens = produtos.map((p) => produtoComUrlsDeImagens(p));
 
   return (
     <div>
@@ -29,7 +31,7 @@ export default async function AdminProdutosPage() {
           Novo produto
         </Link>
       </div>
-      <ProdutosTable produtos={produtosComImagens} categorias={categorias} />
+      <ProdutosTable produtos={produtosComImagens} />
     </div>
   );
 }

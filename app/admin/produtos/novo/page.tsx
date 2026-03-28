@@ -3,6 +3,10 @@ import ProdutoForm from "@/components/dashboard/ProdutoForm";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  title: "Novo Produto — Admin",
+};
+
 export default async function NovoProdutoPage() {
   const categorias = await prisma.categoria.findMany({
     orderBy: { nome: "asc" },

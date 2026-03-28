@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { produtoComUrlsDeImagens, produtoImagensQuery } from "@/lib/produto-imagens";
 import ProdutosGrid from "@/components/store/ProdutosGrid";
 
 export const dynamic = "force-dynamic";
@@ -69,13 +70,13 @@ export default async function ProdutosPage({
   const produtos = await prisma.produto.findMany({
     where,
     orderBy,
-    include: { categoria: { select: { id: true, nome: true, slug: true } } },
+    include: {
+      categoria: { select: { id: true, nome: true, slug: true } },
+      ...produtoImagensQuery,
+    },
   });
 
-  const produtosComImagens = produtos.map((p) => ({
-    ...p,
-    imagens: JSON.parse(p.imagens || "[]") as string[],
-  }));
+  const produtosComImagens = produtos.map((p) => produtoComUrlsDeImagens(p));
 
   const total = produtosComImagens.length;
 

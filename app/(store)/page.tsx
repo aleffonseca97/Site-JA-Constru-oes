@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
+import { produtoComUrlsDeImagens, produtoImagensQuery } from "@/lib/produto-imagens";
 import ProductCard from "@/components/store/ProductCard";
 import { FornecedoresBrands } from "@/components/store/FornecedoresBrands";
 
@@ -15,23 +16,23 @@ const FORNECEDORES = [
   "VEDACIT",
 ] as const;
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function HomePage() {
-  const [categorias, produtos] = await Promise.all([
+  const [categorias, produtosDestaque] = await Promise.all([
     prisma.categoria.findMany({ orderBy: { nome: "asc" }, take: 6 }),
     prisma.produto.findMany({
-      where: { ativo: true },
+      where: { ativo: true, destaque: true },
       orderBy: { createdAt: "desc" },
-      take: 8,
-      include: { categoria: { select: { slug: true, nome: true } } },
+      take: 4,
+      include: {
+        categoria: { select: { slug: true, nome: true } },
+        ...produtoImagensQuery,
+      },
     }),
   ]);
 
-  const produtosComImagens = produtos.map((p) => ({
-    ...p,
-    imagens: JSON.parse(p.imagens || "[]") as string[],
-  }));
+  const produtosComImagens = produtosDestaque.map((p) => produtoComUrlsDeImagens(p));
 
   return (
     <div>

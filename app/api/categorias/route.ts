@@ -1,17 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { authOptions, assertAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { slugify } from "@/lib/utils";
 import { z } from "zod";
-
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-]/g, "");
-}
 
 const createSchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório"),
@@ -36,9 +28,9 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session?.user || (session.user as { role?: string }).role !== "admin") {
-    return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
-  }
+  const denied = assertAdmin(session);
+  if (denied) return denied;
+
   try {
     const body = await request.json();
     const data = createSchema.parse(body);

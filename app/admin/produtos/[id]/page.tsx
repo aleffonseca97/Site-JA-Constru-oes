@@ -1,8 +1,13 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { produtoComUrlsDeImagens, produtoImagensQuery } from "@/lib/produto-imagens";
 import ProdutoForm from "@/components/dashboard/ProdutoForm";
 
 export const dynamic = "force-dynamic";
+
+export const metadata = {
+  title: "Editar Produto — Admin",
+};
 
 export default async function EditarProdutoPage({
   params,
@@ -12,7 +17,7 @@ export default async function EditarProdutoPage({
   const { id } = await params;
   const produto = await prisma.produto.findUnique({
     where: { id },
-    include: { categoria: true },
+    include: { categoria: true, ...produtoImagensQuery },
   });
   if (!produto) notFound();
 
@@ -20,15 +25,10 @@ export default async function EditarProdutoPage({
     orderBy: { nome: "asc" },
   });
 
-  const produtoComImagens = {
-    ...produto,
-    imagens: JSON.parse(produto.imagens || "[]") as string[],
-  };
-
   return (
     <div>
       <h1 className="text-2xl font-bold text-yellow-400 mb-6">Editar produto</h1>
-      <ProdutoForm categorias={categorias} produto={produtoComImagens} />
+      <ProdutoForm categorias={categorias} produto={produtoComUrlsDeImagens(produto)} />
     </div>
   );
 }

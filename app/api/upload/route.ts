@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
+import { uploadProdutoImagem } from "@/lib/r2";
 
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -15,21 +14,11 @@ export async function POST(request: NextRequest) {
     if (!file) {
       return NextResponse.json({ error: "Nenhum arquivo enviado" }, { status: 400 });
     }
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    const ext = path.extname(file.name) || ".jpg";
-    const name = `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`;
-    const dir = path.join(process.cwd(), "public", "uploads");
-    await mkdir(dir, { recursive: true });
-    const filePath = path.join(dir, name);
-    await writeFile(filePath, buffer);
-    const url = `/uploads/${name}`;
+    const { url } = await uploadProdutoImagem(file);
     return NextResponse.json({ url });
   } catch (e) {
+    const message = e instanceof Error ? e.message : "Erro ao fazer upload";
     console.error(e);
-    return NextResponse.json(
-      { error: "Erro ao fazer upload" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: message }, { status: message.includes("não configurado") ? 503 : 500 });
   }
 }

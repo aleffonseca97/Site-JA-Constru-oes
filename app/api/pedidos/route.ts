@@ -1,16 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { authOptions, assertAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { parseEndereco } from "@/lib/utils";
+import type { PedidoStatus } from "@prisma/client";
+
+const VALID_STATUSES = new Set<PedidoStatus>(["pendente", "pago", "entregue", "cancelado"]);
 
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session?.user || (session.user as { role?: string }).role !== "admin") {
-    return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
-  }
+  const denied = assertAdmin(session);
+  if (denied) return denied;
+
   try {
     const { searchParams } = new URL(request.url);
-    const status = searchParams.get("status");
+    const statusParam = searchParams.get("status");
+    const status = statusParam && VALID_STATUSES.has(statusParam as PedidoStatus)
+      ? (statusParam as PedidoStatus)
+      : undefined;
 
     const where = status ? { status } : {};
     const pedidos = await prisma.pedido.findMany({
@@ -25,7 +32,12 @@ export async function GET(request: NextRequest) {
 
     const parsed = pedidos.map((p) => ({
       ...p,
-      endereco: JSON.parse(p.endereco || "{}") as Record<string, string>,
+      total: Number(p.total),
+      endereco: parseEndereco(p.endereco),
+      itens: p.itens.map((i) => ({
+        ...i,
+        precoUnitario: Number(i.precoUnitario),
+      })),
     }));
 
     return NextResponse.json(parsed);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -15,8 +15,11 @@ type Produto = {
   estoque: number;
   imagens: string[];
   ativo: boolean;
+  destaque: boolean;
   categoriaId: string;
 };
+
+type Pendente = { id: string; file: File; preview: string };
 
 export default function ProdutoForm({
   categorias,
@@ -34,20 +37,50 @@ export default function ProdutoForm({
   const [estoque, setEstoque] = useState(produto?.estoque?.toString() ?? "0");
   const [categoriaId, setCategoriaId] = useState(produto?.categoriaId ?? categorias[0]?.id ?? "");
   const [ativo, setAtivo] = useState(produto?.ativo ?? true);
-  const [imagens, setImagens] = useState<string[]>(produto?.imagens ?? []);
+  const [destaque, setDestaque] = useState(produto?.destaque ?? false);
+  /** URLs já salvas no servidor (edição) ou enviadas em um salvamento anterior na mesma sessão não aplicável — só existentes */
+  const [urlsExistentes, setUrlsExistentes] = useState<string[]>(produto?.imagens ?? []);
+  /** Arquivos escolhidos localmente; upload só ao salvar */
+  const [pendentes, setPendentes] = useState<Pendente[]>([]);
 
-  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const formData = new FormData();
-    formData.set("file", file);
-    const res = await fetch("/api/upload", { method: "POST", body: formData });
-    const data = await res.json();
-    if (data.url) setImagens((prev) => [...prev, data.url]);
+  const pendentesRef = useRef<Pendente[]>([]);
+  useEffect(() => {
+    pendentesRef.current = pendentes;
+  }, [pendentes]);
+  useEffect(() => {
+    return () => {
+      pendentesRef.current.forEach((p) => URL.revokeObjectURL(p.preview));
+    };
+  }, []);
+
+  function handleEscolherImagens(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files?.length) return;
+    setError("");
+    const novos: Pendente[] = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (!file.type.startsWith("image/")) continue;
+      novos.push({
+        id: crypto.randomUUID(),
+        file,
+        preview: URL.createObjectURL(file),
+      });
+    }
+    if (novos.length) setPendentes((prev) => [...prev, ...novos]);
+    e.target.value = "";
   }
 
-  function removeImage(url: string) {
-    setImagens((prev) => prev.filter((u) => u !== url));
+  function removeUrlExistente(url: string) {
+    setUrlsExistentes((prev) => prev.filter((u) => u !== url));
+  }
+
+  function removePendente(id: string) {
+    setPendentes((prev) => {
+      const item = prev.find((p) => p.id === id);
+      if (item) URL.revokeObjectURL(item.preview);
+      return prev.filter((p) => p.id !== id);
+    });
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -55,6 +88,25 @@ export default function ProdutoForm({
     setError("");
     setLoading(true);
     try {
+      const novasUrls: string[] = [];
+      for (const p of pendentes) {
+        const formData = new FormData();
+        formData.set("file", p.file);
+        const res = await fetch("/api/upload", { method: "POST", body: formData });
+        const data = await res.json();
+        if (!res.ok) {
+          setError(typeof data.error === "string" ? data.error : "Falha ao enviar uma das imagens");
+          setLoading(false);
+          return;
+        }
+        if (data.url) novasUrls.push(data.url);
+      }
+
+      pendentes.forEach((p) => URL.revokeObjectURL(p.preview));
+      setPendentes([]);
+
+      const imagens = [...urlsExistentes, ...novasUrls];
+
       const body = {
         nome,
         descricao: descricao || undefined,
@@ -62,6 +114,7 @@ export default function ProdutoForm({
         estoque: parseInt(estoque, 10),
         categoriaId,
         ativo,
+        destaque,
         imagens,
       };
       const url = produto ? `/api/produtos/${produto.id}` : "/api/produtos";
@@ -170,13 +223,34 @@ export default function ProdutoForm({
         <label className="block text-sm font-medium text-gray-300 mb-1">
           Imagens
         </label>
+        <p className="text-xs text-gray-500 mb-2">
+          As imagens só são enviadas ao Cloudflare ao clicar em Salvar (primeiro o arquivo, depois o cadastro).
+        </p>
         <div className="flex flex-wrap gap-2 mb-2">
-          {imagens.map((url) => (
+          {urlsExistentes.map((url) => (
             <div key={url} className="relative w-20 h-20 rounded overflow-hidden bg-gray-800 border border-gray-700">
               <Image src={url} alt="" fill className="object-cover" sizes="80px" />
               <button
                 type="button"
-                onClick={() => removeImage(url)}
+                onClick={() => removeUrlExistente(url)}
+                className="absolute top-0 right-0 bg-red-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-bl"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+          {pendentes.map((p) => (
+            <div
+              key={p.id}
+              className="relative w-20 h-20 rounded overflow-hidden bg-gray-800 border border-dashed border-yellow-600/60"
+            >
+              <Image src={p.preview} alt="" fill className="object-cover" unoptimized sizes="80px" />
+              <span className="absolute bottom-0 left-0 right-0 bg-black/60 text-[10px] text-yellow-300 text-center py-0.5">
+                pendente
+              </span>
+              <button
+                type="button"
+                onClick={() => removePendente(p.id)}
                 className="absolute top-0 right-0 bg-red-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-bl"
               >
                 ×
@@ -187,7 +261,8 @@ export default function ProdutoForm({
         <input
           type="file"
           accept="image/*"
-          onChange={handleUpload}
+          multiple
+          onChange={handleEscolherImagens}
           className="text-sm text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:bg-yellow-500 file:text-black file:font-medium"
         />
       </div>
@@ -203,13 +278,25 @@ export default function ProdutoForm({
           Produto ativo (visível na loja)
         </label>
       </div>
+      <div className="flex items-center gap-2">
+        <input
+          id="destaque"
+          type="checkbox"
+          checked={destaque}
+          onChange={(e) => setDestaque(e.target.checked)}
+          className="rounded border-gray-600 bg-gray-900 text-yellow-500 focus:ring-yellow-500"
+        />
+        <label htmlFor="destaque" className="text-sm text-gray-300">
+          Destaque na página inicial (até 4 produtos)
+        </label>
+      </div>
       <div className="flex gap-3 pt-4">
         <button
           type="submit"
           disabled={loading}
           className="px-4 py-2 rounded bg-yellow-500 text-black font-medium hover:bg-yellow-400 disabled:opacity-50"
         >
-          {loading ? "Salvando..." : "Salvar"}
+          {loading ? "Enviando..." : "Salvar"}
         </button>
         <Link
           href="/admin/produtos"

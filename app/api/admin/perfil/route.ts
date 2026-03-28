@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { authOptions, assertAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import * as bcrypt from "bcryptjs";
 import { z } from "zod";
@@ -24,7 +24,10 @@ const patchSchema = z
 
 export async function PATCH(request: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id || session.user.role !== "admin") {
+  const denied = assertAdmin(session);
+  if (denied) return denied;
+
+  if (!session?.user?.id) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
   }
 

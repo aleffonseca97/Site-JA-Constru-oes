@@ -3,6 +3,10 @@ import CategoriasTable from "@/components/dashboard/CategoriasTable";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  title: "Categorias — Admin",
+};
+
 export default async function AdminCategoriasPage() {
   const categorias = await prisma.categoria.findMany({
     orderBy: { nome: "asc" },

@@ -1,9 +1,14 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { formatCurrency, parseEndereco } from "@/lib/utils";
 import AtualizarStatusPedido from "@/components/dashboard/AtualizarStatusPedido";
 
 export const dynamic = "force-dynamic";
+
+export const metadata = {
+  title: "Detalhe da Venda — Admin",
+};
 
 export default async function AdminVendaDetalhePage({
   params,
@@ -23,7 +28,7 @@ export default async function AdminVendaDetalhePage({
   });
   if (!pedido) notFound();
 
-  const endereco = JSON.parse(pedido.endereco || "{}") as Record<string, string>;
+  const endereco = parseEndereco(pedido.endereco);
 
   return (
     <div>
@@ -76,13 +81,13 @@ export default async function AdminVendaDetalhePage({
                     {item.produto.nome} × {item.quantidade}
                   </span>
                   <span className="text-yellow-400">
-                    R$ {(item.precoUnitario * item.quantidade).toFixed(2).replace(".", ",")}
+                    {formatCurrency(Number(item.precoUnitario) * item.quantidade)}
                   </span>
                 </li>
               ))}
             </ul>
             <p className="text-xl font-bold text-yellow-400 border-t border-gray-800 pt-4">
-              Total: R$ {pedido.total.toFixed(2).replace(".", ",")}
+              Total: {formatCurrency(Number(pedido.total))}
             </p>
             <div className="mt-6">
               <p className="text-gray-500 text-sm mb-2">Status atual:</p>

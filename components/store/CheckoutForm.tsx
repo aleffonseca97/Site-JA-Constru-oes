@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { formatCurrency } from "@/lib/utils";
 
 export default function CheckoutForm() {
   const { items, total, clear } = useCart();
@@ -220,7 +221,7 @@ export default function CheckoutForm() {
       </div>
       <div className="pt-4 border-t border-gray-200">
         <p className="ui-muted mb-2 font-medium">
-          Total: <span className="text-yellow-700 font-bold">R$ {total.toFixed(2).replace(".", ",")}</span>
+          Total: <span className="text-yellow-700 font-bold">{formatCurrency(total)}</span>
         </p>
         <button
           type="submit"

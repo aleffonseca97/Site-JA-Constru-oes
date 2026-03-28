@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from "react";
 
 const cardBase =
   'group relative flex items-center justify-center overflow-hidden border border-gray-200/90 bg-white/85 text-center shadow-sm backdrop-blur-[2px] transition duration-300 ' +

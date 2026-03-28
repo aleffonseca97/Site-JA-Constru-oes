@@ -4,6 +4,7 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { safeRedirectUrl } from "@/lib/utils";
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
@@ -11,7 +12,8 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/admin/produtos";
+  const rawCallback = searchParams.get("callbackUrl") ?? "/admin/produtos";
+  const callbackUrl = safeRedirectUrl(rawCallback, "/admin/produtos");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

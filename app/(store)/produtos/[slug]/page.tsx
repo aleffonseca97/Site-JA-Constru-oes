@@ -1,8 +1,17 @@
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { produtoComUrlsDeImagens, produtoImagensQuery } from "@/lib/produto-imagens";
 import ProdutoDetail from "@/components/store/ProdutoDetail";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
+
+const getProdutoBySlug = cache(async (slug: string) => {
+  return prisma.produto.findUnique({
+    where: { slug, ativo: true },
+    include: { categoria: true, ...produtoImagensQuery },
+  });
+});
 
 export async function generateMetadata({
   params,
@@ -10,9 +19,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const produto = await prisma.produto.findUnique({
-    where: { slug, ativo: true },
-  });
+  const produto = await getProdutoBySlug(slug);
   if (!produto) return { title: "Produto não encontrado" };
   return {
     title: `${produto.nome} — J.A Construções`,
@@ -26,16 +33,9 @@ export default async function ProdutoPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const produto = await prisma.produto.findUnique({
-    where: { slug, ativo: true },
-    include: { categoria: true },
-  });
+  const produto = await getProdutoBySlug(slug);
   if (!produto) notFound();
 
-  const produtoComImagens = {
-    ...produto,
-    imagens: JSON.parse(produto.imagens || "[]") as string[],
-  };
-
-  return <ProdutoDetail produto={produtoComImagens} />;
+  const p = produtoComUrlsDeImagens(produto);
+  return <ProdutoDetail key={p.id} produto={p} />;
 }

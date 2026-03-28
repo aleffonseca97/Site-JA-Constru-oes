@@ -3,6 +3,10 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import AdminConfigForm from "@/components/dashboard/AdminConfigForm";
 
+export const metadata = {
+  title: "Configurações — Admin",
+};
+
 export default async function AdminConfiguracoesPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {

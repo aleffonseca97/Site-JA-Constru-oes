@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
+import { formatCurrency } from "@/lib/utils";
 
 export default function CarrinhoContent() {
   const { items, removeItem, updateQuantity, total, count } = useCart();
@@ -53,7 +54,7 @@ export default function CarrinhoContent() {
                   {item.nome}
                 </Link>
                 <p className="text-yellow-700 text-sm mt-0.5 font-medium">
-                  R$ {item.preco.toFixed(2).replace(".", ",")} cada
+                  {formatCurrency(item.preco)} cada
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -86,7 +87,7 @@ export default function CarrinhoContent() {
         <div className="ui-card p-6 sticky top-24">
           <p className="ui-muted mb-2 font-medium">Total</p>
           <p className="text-2xl font-bold text-yellow-700 mb-6">
-            R$ {total.toFixed(2).replace(".", ",")}
+            {formatCurrency(total)}
           </p>
           <Link
             href="/checkout"

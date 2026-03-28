@@ -8,12 +8,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  admin
+  user
+}
+
+enum PedidoStatus {
+  pendente
+  pago
+  entregue
+  cancelado
+}
+
 model Usuario {
   id         String   @id @default(cuid())
   email      String   @unique
   senhaHash  String
   nome       String?
-  role       String   @default("admin")
+  role       Role     @default(admin)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
@@ -31,37 +43,50 @@ model Categoria {
 }
 
 model Produto {
-  id          String     @id @default(cuid())
+  id          String          @id @default(cuid())
   nome        String
-  slug        String     @unique
+  slug        String          @unique
   descricao   String?
-  preco       Float
-  estoque     Int        @default(0)
-  imagens     String     @default("[]") // JSON array de URLs
-  ativo       Boolean    @default(true)
+  preco       Decimal         @db.Decimal(10, 2)
+  estoque     Int             @default(0)
+  imagens     ProdutoImagem[]
+  ativo       Boolean         @default(true)
+  destaque    Boolean         @default(false)
   categoriaId String
-  categoria   Categoria  @relation(fields: [categoriaId], references: [id], onDelete: Restrict)
+  categoria   Categoria       @relation(fields: [categoriaId], references: [id], onDelete: Restrict)
   itensPedido ItemPedido[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
   @@index([categoriaId])
   @@index([slug])
   @@index([ativo])
+  @@index([destaque])
+}
+
+/// URLs públicas (ex.: Cloudflare R2); ordem define a sequência na vitrine.
+model ProdutoImagem {
+  id        String  @id @default(cuid())
+  url       String
+  ordem     Int     @default(0)
+  produtoId String
+  produto   Produto @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+
+  @@index([produtoId])
 }
 
 model Pedido {
-  id                String      @id @default(cuid())
+  id                String        @id @default(cuid())
   clienteNome       String
   clienteEmail      String
   clienteTelefone   String?
-  endereco          String      // JSON: { rua, numero, bairro, cidade, cep, complemento? }
-  total             Float
-  status            String      @default("pendente") // pendente | pago | entregue | cancelado
-  stripeSessionId   String?     @unique
+  endereco          String
+  total             Decimal       @db.Decimal(10, 2)
+  status            PedidoStatus  @default(pendente)
+  stripeSessionId   String?       @unique
   itens             ItemPedido[]
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
   @@index([status])
   @@index([createdAt])
@@ -74,7 +99,7 @@ model ItemPedido {
   produtoId     String
   produto       Produto  @relation(fields: [produtoId], references: [id], onDelete: Restrict)
   quantidade    Int
-  precoUnitario Float
+  precoUnitario Decimal  @db.Decimal(10, 2)
 
   @@index([pedidoId])
 }

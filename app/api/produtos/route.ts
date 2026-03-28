@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { authOptions, assertAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { produtoComUrlsDeImagens, produtoImagensQuery } from "@/lib/produto-imagens";
+import { slugify } from "@/lib/utils";
 import { z } from "zod";
 
 const createSchema = z.object({
@@ -11,8 +13,9 @@ const createSchema = z.object({
   preco: z.number().positive(),
   estoque: z.number().int().min(0),
   categoriaId: z.string().min(1),
-  imagens: z.array(z.string()).default([]),
+  imagens: z.array(z.string().min(1)).default([]),
   ativo: z.boolean().default(true),
+  destaque: z.boolean().default(false),
 });
 
 export async function GET(request: NextRequest) {
@@ -21,31 +24,33 @@ export async function GET(request: NextRequest) {
     const categoriaId = searchParams.get("categoriaId");
     const ativo = searchParams.get("ativo");
     const busca = searchParams.get("q");
-    const ordem = searchParams.get("ordem") ?? "nome"; // nome | preco
+    const ordem = searchParams.get("ordem") ?? "nome";
     const dir = searchParams.get("dir") ?? "asc";
 
     const where: { categoriaId?: string; ativo?: boolean; nome?: { contains: string } } = {};
     if (categoriaId) where.categoriaId = categoriaId;
-    if (ativo !== null && ativo !== undefined && ativo !== "") {
+    if (ativo) {
       where.ativo = ativo === "true";
     }
     if (busca?.trim()) {
       where.nome = { contains: busca.trim() };
     }
 
-    const orderBy = ordem === "preco" ? { preco: dir as "asc" | "desc" } : { nome: dir as "asc" | "desc" };
+    const validDir = dir === "desc" ? "desc" : "asc";
+    const orderBy = ordem === "preco"
+      ? { preco: validDir as "asc" | "desc" }
+      : { nome: validDir as "asc" | "desc" };
 
     const produtos = await prisma.produto.findMany({
       where,
       orderBy,
-      include: { categoria: { select: { id: true, nome: true, slug: true } } },
+      include: {
+        categoria: { select: { id: true, nome: true, slug: true } },
+        ...produtoImagensQuery,
+      },
     });
 
-    // Parse imagens JSON for response
-    const parsed = produtos.map((p) => ({
-      ...p,
-      imagens: JSON.parse(p.imagens || "[]") as string[],
-    }));
+    const parsed = produtos.map((p) => produtoComUrlsDeImagens(p));
 
     return NextResponse.json(parsed);
   } catch (e) {
@@ -59,9 +64,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session?.user || (session.user as { role?: string }).role !== "admin") {
-    return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
-  }
+  const denied = assertAdmin(session);
+  if (denied) return denied;
+
   try {
     const body = await request.json();
     const data = createSchema.parse({
@@ -70,14 +75,7 @@ export async function POST(request: NextRequest) {
       estoque: typeof body.estoque === "string" ? parseInt(body.estoque, 10) : body.estoque,
     });
 
-    const slug =
-      data.slug?.trim() ||
-      data.nome
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/\p{Diacritic}/gu, "")
-        .replace(/\s+/g, "-")
-        .replace(/[^a-z0-9-]/g, "");
+    const slug = data.slug?.trim() || slugify(data.nome);
 
     const existente = await prisma.produto.findUnique({ where: { slug } });
     const slugFinal = existente ? `${slug}-${Date.now()}` : slug;
@@ -90,16 +88,19 @@ export async function POST(request: NextRequest) {
         preco: data.preco,
         estoque: data.estoque,
         categoriaId: data.categoriaId,
-        imagens: JSON.stringify(data.imagens),
         ativo: data.ativo,
+        destaque: data.destaque,
+        imagens: {
+          create: data.imagens.map((url, ordem) => ({ url, ordem })),
+        },
       },
-      include: { categoria: { select: { id: true, nome: true, slug: true } } },
+      include: {
+        categoria: { select: { id: true, nome: true, slug: true } },
+        ...produtoImagensQuery,
+      },
     });
 
-    return NextResponse.json({
-      ...produto,
-      imagens: JSON.parse(produto.imagens || "[]") as string[],
-    });
+    return NextResponse.json(produtoComUrlsDeImagens(produto));
   } catch (e) {
     if (e instanceof z.ZodError) {
       return NextResponse.json({ error: e.flatten() }, { status: 400 });

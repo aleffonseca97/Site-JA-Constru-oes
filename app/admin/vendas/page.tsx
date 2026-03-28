@@ -1,8 +1,15 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { formatCurrency } from "@/lib/utils";
+import { parseEndereco } from "@/lib/utils";
 import VendasFilters from "@/components/dashboard/VendasFilters";
+import VendasRefreshButton from "@/components/dashboard/VendasRefreshButton";
 
 export const dynamic = "force-dynamic";
+
+export const metadata = {
+  title: "Vendas — Admin",
+};
 
 type SearchParams = { [key: string]: string | string[] | undefined };
 
@@ -15,7 +22,10 @@ export default async function AdminVendasPage({
   const status =
     typeof params.status === "string" ? params.status : undefined;
 
-  const where = status ? { status } : {};
+  const validStatuses = ["pendente", "pago", "entregue", "cancelado"] as const;
+  type StatusType = (typeof validStatuses)[number];
+  const isValid = status && validStatuses.includes(status as StatusType);
+  const where = isValid ? { status: status as StatusType } : {};
   const pedidos = await prisma.pedido.findMany({
     where,
     orderBy: { createdAt: "desc" },
@@ -28,12 +38,16 @@ export default async function AdminVendasPage({
 
   const pedidosComEndereco = pedidos.map((p) => ({
     ...p,
-    endereco: JSON.parse(p.endereco || "{}") as Record<string, string>,
+    total: Number(p.total),
+    endereco: parseEndereco(p.endereco),
   }));
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-yellow-400 mb-6">Vendas</h1>
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <h1 className="text-2xl font-bold text-yellow-400">Vendas</h1>
+        <VendasRefreshButton />
+      </div>
       <VendasFilters status={status} />
       <div className="mt-4 bg-gray-900 border border-gray-800 rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
@@ -71,7 +85,7 @@ export default async function AdminVendasPage({
                     </td>
                     <td className="p-3 text-white">{p.clienteNome}</td>
                     <td className="p-3 text-yellow-400 font-medium">
-                      R$ {p.total.toFixed(2).replace(".", ",")}
+                      {formatCurrency(p.total)}
                     </td>
                     <td className="p-3">
                       <span

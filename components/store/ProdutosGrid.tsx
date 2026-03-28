@@ -2,18 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import ProductCard from "./ProductCard";
-
-type Categoria = { id: string; nome: string; slug: string };
-type Produto = {
-  id: string;
-  nome: string;
-  slug: string;
-  preco: number;
-  estoque: number;
-  ativo: boolean;
-  imagens: string[];
-  categoria: Categoria;
-};
+import type { Categoria, ProdutoComCategoria } from "@/types";
 
 export default function ProdutosGrid({
   produtos,
@@ -25,7 +14,7 @@ export default function ProdutosGrid({
   ordem,
   dir,
 }: {
-  produtos: Produto[];
+  produtos: ProdutoComCategoria[];
   categorias: Categoria[];
   categoriaSlug: string | null;
   subcategorias?: Categoria[];
@@ -63,8 +52,12 @@ export default function ProdutosGrid({
             <select
               value={categoriaSlug ?? ""}
               onChange={(e) => {
-                setFilter("categoria", e.target.value || null);
-                setFilter("sub", null);
+                const p = new URLSearchParams(searchParams.toString());
+                const slug = e.target.value;
+                if (slug) p.set("categoria", slug);
+                else p.delete("categoria");
+                p.delete("sub");
+                router.push(`/produtos?${p.toString()}`);
               }}
               className="ui-select w-full min-h-11 min-w-0 py-2.5 text-base sm:min-h-0 sm:py-1.5 sm:text-sm"
             >

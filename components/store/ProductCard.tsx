@@ -3,23 +3,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
-
-type Produto = {
-  id: string;
-  nome: string;
-  slug: string;
-  preco: number;
-  imagens: string[];
-  estoque: number;
-  ativo: boolean;
-};
+import { formatCurrency } from "@/lib/utils";
+import type { ProdutoComImagens } from "@/types";
 
 export default function ProductCard({
   produto,
   density = "comfortable",
 }: {
-  produto: Produto;
-  /** Catálogo: cards menores para caber mais colunas no mobile */
+  produto: ProdutoComImagens;
   density?: "comfortable" | "compact";
 }) {
   const { addItem } = useCart();
@@ -94,7 +85,7 @@ export default function ProductCard({
               compact ? "mt-0.5 text-[11px] tabular-nums sm:mt-1 sm:text-base" : "mt-1"
             }`}
           >
-            R$ {produto.preco.toFixed(2).replace(".", ",")}
+            {formatCurrency(produto.preco)}
           </p>
         </div>
       </Link>

@@ -7,6 +7,7 @@ import {
   useMemo,
   useSyncExternalStore,
 } from "react";
+import { z } from "zod";
 
 export type CartItem = {
   produtoId: string;
@@ -16,6 +17,17 @@ export type CartItem = {
   imagem?: string;
   quantidade: number;
 };
+
+const cartItemSchema = z.object({
+  produtoId: z.string(),
+  nome: z.string(),
+  slug: z.string(),
+  preco: z.number(),
+  imagem: z.string().optional(),
+  quantidade: z.number().int().min(1),
+});
+
+const cartSchema = z.array(cartItemSchema);
 
 type CartContextType = {
   items: CartItem[];
@@ -36,7 +48,13 @@ function loadCart(): CartItem[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    const result = cartSchema.safeParse(parsed);
+    if (!result.success) {
+      localStorage.removeItem(STORAGE_KEY);
+      return [];
+    }
+    return result.data;
   } catch {
     return [];
   }
