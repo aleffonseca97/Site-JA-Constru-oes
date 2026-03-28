@@ -46,6 +46,6 @@ USER nextjs
 EXPOSE 3000
 
 ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
+ENV HOSTNAME="72.62.108.253"
 
 CMD ["sh", "-c", "node ./prismacli/node_modules/prisma/build/index.js migrate deploy && node server.js"]
