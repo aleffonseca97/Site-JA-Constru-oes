@@ -30,11 +30,6 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (keep .env.example; do not commit .env)
-.env
-.env.local
-.env.*.local
-
 # uploads (generated at runtime)
 /public/uploads
 

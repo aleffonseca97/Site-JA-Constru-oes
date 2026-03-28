@@ -17,7 +17,7 @@ services:
       extra_hosts:
         - 'host.docker.internal:host-gateway'
       args:
-        DATABASE_URL: 'postgresql://6V8VkZh5oOxgJLeJ:logosserveradmin193690@72.62.108.253:32771/jaconstrucoes?sslmode=disable'
+        DATABASE_URL: ${DATABASE_URL}
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     restart: unless-stopped

@@ -12,11 +12,6 @@ build
 .idea
 .agents
 
-# Env & secrets (use compose / runtime env)
-.env
-.env.*
-!.env.example
-
 # Logs & coverage
 npm-debug.log*
 yarn-debug.log*
