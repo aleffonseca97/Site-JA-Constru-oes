@@ -12,8 +12,12 @@ COPY . .
 
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1
 
-# Build-arg vindo do Compose; não usar ENV aqui para não persistir na camada como variável de imagem.
+# Build-args: DATABASE_URL para Prisma; URL pública do R2 para next.config (remotePatterns / NEXT_PUBLIC_*).
+# Sem NEXT_PUBLIC_R2_PUBLIC_URL na build, imagens externas podem falhar no otimizador `/_next/image`.
 ARG DATABASE_URL
+ARG NEXT_PUBLIC_R2_PUBLIC_URL
+ENV NEXT_PUBLIC_R2_PUBLIC_URL=$NEXT_PUBLIC_R2_PUBLIC_URL
+ENV R2_PUBLIC_URL=$NEXT_PUBLIC_R2_PUBLIC_URL
 RUN export DATABASE_URL="$DATABASE_URL" && npm run db:generate && npm run build
 
 # CLI Prisma à parte: o output standalone do Next não inclui dependências hoistadas necessárias ao migrate.
